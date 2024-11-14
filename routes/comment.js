@@ -11,6 +11,7 @@ router.get('/comment/:where/:food', async (req,res) => {
      try {
          const connection = await conn.getConnection();
          const query = 'SELECT SUM(rate) FROM comment WHERE restaurant = ? AND menu = ?';
+         //query 수정 필요함 짜다 말았음
          const result = await connection.query(query,[req.params['where'],req.params['food']]);
          console.log(result);
          res.json(result);
