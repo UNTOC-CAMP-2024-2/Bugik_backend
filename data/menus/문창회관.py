@@ -2,7 +2,7 @@ import json
 import re
 
 
-file_path = r'C:\projects\back\Alien_slaves_backend\data\result.json'
+file_path = 'C:/projects/back/Alien_slaves_backend/data/result.json'
 
 
 with open(file_path, 'r', encoding='utf-8') as file:
@@ -23,7 +23,7 @@ def extract_menu_items(data):
     for restaurant_data in data:
         for entry in restaurant_data:
             for meal in entry['meals']:
-                
+
                 if entry['res'] == "문창회관 식당":
                     try:
                         menu = meal['menu'].replace('\n<br>', ', ')
