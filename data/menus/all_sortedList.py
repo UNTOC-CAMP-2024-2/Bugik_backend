@@ -25,8 +25,9 @@ restaurant_keys = [
 ]
 
 def clean_menu(menu):
-    
+
     menu = re.sub(r'(\d+kcal|\d+g|영업시간\(\d{0,2}:\d{0,2}~\d{0,2}:\d{0,2}\)|운영시간\(:~:\)|없음|문의:\s*\d+-\d+-\d+)', '', menu)
+    
     menu = re.sub(r'\d+', '', menu)  #수
     
     menu = re.sub(r'\s+', ' ', menu) #공백

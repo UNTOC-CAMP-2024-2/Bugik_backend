@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "target": "ES2020",                 // 컴파일된 JavaScript의 버전 (Node.js 지원 가능 버전)
+      "module": "commonjs",               // Node.js 모듈 시스템
+      "strict": true,                     // 엄격한 타입 검사
+      "esModuleInterop": true,            // ESModule과 CommonJS 간 호환
+      "forceConsistentCasingInFileNames": true, // 파일명 대소문자 강제 검사
+      "skipLibCheck": true,               // 라이브러리 타입 검사 생략 (속도 향상)
+      "outDir": "./dist",                 // 컴파일된 파일의 출력 폴더
+      "rootDir": "./",                    // 소스 파일의 루트 디렉토리
+      "baseUrl": "./",                    // 기본 경로
+      "resolveJsonModule": true,          // JSON 파일 임포트 허용
+      "noImplicitAny": true               // 암시적 `any` 타입 금지
+    },
+    "include": [
+      "**/*.ts"                           // 컴파일 대상 TypeScript 파일
+    ],
+    "exclude": [
+      "node_modules",                     // 제외할 디렉토리
+      "dist"                              // 출력 폴더 제외
+    ]
+  }
+  

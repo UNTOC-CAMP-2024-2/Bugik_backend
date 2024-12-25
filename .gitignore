@@ -4,3 +4,6 @@ package-lock.json
 
 /data/node_modules
 /data/package-lock.json
+
+api.txt
+db.txt
