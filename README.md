@@ -35,7 +35,7 @@
 |   |-- userModel.ts
 |   |-- restaurantModel.ts
 |
-|-- /utils               # 유틸리티 함수
+|-- /utils              
 |   |-- jwt.ts           # JWT 관련 유틸리티
 |   |-- responseHelper.ts # 응답 처리 헬퍼
 |
@@ -173,7 +173,93 @@
   - `restaurant_id`: 식당 ID (Foreign Key)
   - `date`: 날짜
 
+### **4. meals**
+- 식사 시간별 메뉴 정보를 저장.
+- **컬럼**:
+  - `meal_id`: 식사 ID (Primary Key)
+  - `menu_date_id`: 메뉴 날짜 ID (Foreign Key)
+  - `when_time`: 식사 시간 (조식, 중식, 석식)
+  - `meal_type`: 식사 유형
+
+### **5. meal_items**
+- 개별 메뉴 항목 정보를 저장.
+- **컬럼**:
+  - `item_id`: 항목 ID (Primary Key)
+  - `meal_id`: 식사 ID (Foreign Key)
+  - `food_item`: 음식 이름
+  - `calories`: 칼로리
+  - `protein`: 단백질 함량
+
+### **6. meal_reviews**
+- 리뷰 정보를 저장.
+- **컬럼**:
+  - `review_id`: 리뷰 ID (Primary Key)
+  - `meal_id`: 식사 ID (Foreign Key)
+  - `student_id`: 작성자 학번 (Foreign Key)
+  - `comment`: 리뷰 내용
+  - `photo_path`: 사진 경로
+
+### **7. menu_ratings**
+- 메뉴 평점 정보를 저장.
+- **컬럼**:
+  - `rating_id`: 평점 ID (Primary Key)
+  - `item_id`: 메뉴 항목 ID (Foreign Key)
+  - `student_id`: 작성자 학번 (Foreign Key)
+  - `rating_value`: 평점 값
+
+### **8. restaurant_rankings**
+- 식당 랭킹 정보를 저장.
+- **컬럼**:
+  - `ranking_id`: 랭킹 ID (Primary Key)
+  - `restaurant_id`: 식당 ID (Foreign Key)
+  - `total_score`: 총점 (평균 평점)
+  - `rank`: 랭킹 순위
+  - `ranking_date`: 랭킹 산출 날짜
+
+### **1. users**
+- 사용자 정보를 저장.
+- **컬럼**:
+  - `student_id`: 학번 (Primary Key)
+  - `nickname`: 닉네임
+  - `belonging_uni`: 소속 대학
+- 사용자 정보를 저장.
+- **컬럼**:
+  - `student_id`: 학번 (Primary Key)
+  - `nickname`: 닉네임
+  - `belonging_uni`: 소속 대학
+
+### **2. restaurants**
+- 식당 정보를 저장.
+- **컬럼**:
+  - `restaurant_id`: 식당 ID (Primary Key)
+  - `name`: 식당 이름
+  - `location`: 식당 위치
+- 식당 정보를 저장.
+- **컬럼**:
+  - `restaurant_id`: 식당 ID (Primary Key)
+  - `name`: 식당 이름
+  - `location`: 식당 위치
+
+### **3. menu_dates**
+- 특정 날짜에 제공되는 메뉴 정보를 저장.
+- **컬럼**:
+  - `menu_date_id`: ID (Primary Key)
+  - `restaurant_id`: 식당 ID (Foreign Key)
+  - `date`: 날짜
+- 특정 날짜에 제공되는 메뉴 정보를 저장.
+- **컬럼**:
+  - `menu_date_id`: ID (Primary Key)
+  - `restaurant_id`: 식당 ID (Foreign Key)
+  - `date`: 날짜
+
 ### **4. meal_reviews**
+- 리뷰 정보를 저장.
+- **컬럼**:
+  - `review_id`: 리뷰 ID (Primary Key)
+  - `meal_id`: 식사 ID (Foreign Key)
+  - `student_id`: 작성자 학번 (Foreign Key)
+  - `comment`: 리뷰 내용
+  - `photo_path`: 사진 경로
 - 리뷰 정보를 저장.
 - **컬럼**:
   - `review_id`: 리뷰 ID (Primary Key)
@@ -189,6 +275,12 @@
   - `item_id`: 메뉴 항목 ID (Foreign Key)
   - `student_id`: 작성자 학번 (Foreign Key)
   - `rating_value`: 평점 값
+- 메뉴 평점 정보를 저장.
+- **컬럼**:
+  - `rating_id`: 평점 ID (Primary Key)
+  - `item_id`: 메뉴 항목 ID (Foreign Key)
+  - `student_id`: 작성자 학번 (Foreign Key)
+  - `rating_value`: 평점 값
 
 ---
 
@@ -198,5 +290,5 @@
 - **인증**: JWT (JSON Web Token)
 - **파일 업로드**: Multer
 - **캐싱**: Redis
-- **배포**: AWS lightsail
+
 ---
