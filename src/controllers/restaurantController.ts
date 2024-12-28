@@ -1,46 +1,24 @@
 import {Request,Response} from 'express';
 import * as restaurantModel from '../models/restaurantModel';
 
-//
-// 1) 모든 식당 조회
-//
+// 모든 식당 조회
 export const getAllRestaurants = async (req: Request, res: Response): Promise<void> => {
   try {
     const rows = await restaurantModel.getAllRestaurants();
-    res.status(200).json({
+    res.status(200).json({ 
+      message: "식당 목록", 
       data: rows,
     });
   } catch (error) {
-    console.error('[getAllRestaurants] error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error(error);
+    res.status(500).json({ 
+      error: "Internal server error",
+      message: '미안하다 나도 무슨 오류인지 모르겠다' });
   }
 };
 
-//
-// 2) 식당 생성
-//
-export const createRestaurant = async (req: Request, res: Response): Promise<void> => {
-  try {
-    // body로부터 name, type 추출
-    const { name, type } = req.body;
-    // 유효성 검증 로직 (type이 '기숙사'/'학교식당' 이외면 에러 등)
-    // ...
 
-    // Model 호출
-    await restaurantModel.createRestaurant({ name, type });
-
-    res.status(201).json({
-      message: 'Restaurant created successfully',
-    });
-  } catch (error) {
-    console.error('[createRestaurant] error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-//
-// 3) 식당 단일 조회
-//
+// 식당 단일 조회
 export const getRestaurantById = async (req: Request, res: Response): Promise<void> => {
   try {
     const restaurantId = Number(req.params.restaurantId);
@@ -57,50 +35,8 @@ export const getRestaurantById = async (req: Request, res: Response): Promise<vo
   }
 };
 
-//
-// 4) 식당 수정 (선택사항)
-//
-export const updateRestaurant = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const restaurantId = Number(req.params.restaurantId);
-    const { name, type } = req.body;
 
-    // DB 업데이트
-    const result = await restaurantModel.updateRestaurant(restaurantId, { name, type });
-    if (result.affectedRows === 0) {
-      res.status(404).json({ message: 'Restaurant not found' });
-    }
-
-    res.status(200).json({ message: 'Restaurant updated successfully' });
-  } catch (error) {
-    console.error('[updateRestaurant] error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-//
-// 5) 식당 삭제 (선택사항)
-//
-export const deleteRestaurant = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const restaurantId = Number(req.params.restaurantId);
-    const result = await restaurantModel.deleteRestaurant(restaurantId);
-
-    if (result.affectedRows === 0) {
-      res.status(404).json({ message: 'Restaurant not found' });
-    }
-
-    res.status(200).json({ message: 'Restaurant deleted successfully' });
-  } catch (error) {
-    console.error('[deleteRestaurant] error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-//
-// 6) (예시) 특정 식당의 식단 조회
-//    restaurants_meal 테이블 등을 JOIN하는 로직이 필요하면 추가
-//
+//특정 식당의 식단 조회
 export const getRestaurantMeals = async (req: Request, res: Response): Promise<void> => {
   try {
     const restaurantId = Number(req.params.restaurantId);
@@ -120,9 +56,7 @@ export const getRestaurantMeals = async (req: Request, res: Response): Promise<v
   }
 };
 
-//
-// 7) (예시) 특정 식당의 특정 날짜 식단 상세
-//
+// 특정 식당의 특정 날짜 식단 상세
 export const getSingleMeal = async (req: Request, res: Response): Promise<void> => {
   try {
     const restaurantId = Number(req.params.restaurantId);

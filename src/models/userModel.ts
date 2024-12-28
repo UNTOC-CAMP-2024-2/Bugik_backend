@@ -1,31 +1,49 @@
+import { EphemeralKeyInfo } from 'tls';
 import db from '../data/db';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
+//닉네임 중복 검사
+export const isNicknameTaken = async (
+  nickname: string
+): Promise<boolean> => {
+  const query = `SELECT nickname FROM users WHERE nickname = ?`;
+  const [rows] = await db.execute<RowDataPacket[]>(query, [nickname]);
+  // 어차피 유니크라 1개 아니면 0개
+  return rows.length == 1;
+}
+
 // 유저 생성
 export const createUser = async (
-  student_id: number,
+  user_id: number,
   belonging_uni: string,
-  nickname: string
+  nickname: string,
+  phone_number: string | null,
+  email: string | null
 ): Promise<ResultSetHeader> => {
   const query = `
-    INSERT INTO users (student_id, belonging_uni, nickname)
-    VALUES (?, ?, ?)
+    INSERT INTO users (user_id, belonging_uni, nickname, phone_number, email)
+    VALUES (?, ?, ?, ?, ?)
   `;
   const [result] = await db.execute<ResultSetHeader>(query, [
-    student_id,
+    user_id,
     belonging_uni,
     nickname,
+    phone_number,
+    email
   ]);
+
   return result;
 };
 
-// 유저 중복 체크 or 단일 유저 조회 등 필요시 추가
-export const getUserByStudentId = async (
-  student_id: number
+// 로그인 정보 확인
+export const loginByUserId = async (
+  user_id: number,
+  belonging_uni: string,
+  nickname: string
 ): Promise<RowDataPacket[]> => {
   const query = `
-    SELECT * FROM users WHERE student_id = ?
+    SELECT * FROM users WHERE user_id = ? and belonging_uni = ? and nickname = ?
   `;
-  const [rows] = await db.execute<RowDataPacket[]>(query, [student_id]);
+  const [rows] = await db.execute<RowDataPacket[]>(query, [user_id,belonging_uni,nickname]);
   return rows;
 };

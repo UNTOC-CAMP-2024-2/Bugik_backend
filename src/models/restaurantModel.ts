@@ -21,17 +21,6 @@ export const getAllRestaurants = async (): Promise<RowDataPacket[]> => {
   return rows;
 };
 
-// 식당 생성
-export const createRestaurant = async (restaurant: Restaurant): Promise<ResultSetHeader> => {
-  const { name, type } = restaurant;
-  const query = `
-    INSERT INTO restaurants (name, type)
-    VALUES (?, ?)
-  `;
-  const [result] = await db.execute<ResultSetHeader>(query, [name, type]);
-  return result;
-};
-
 // 식당 단일 조회 by ID
 export const getRestaurantById = async (restaurantId: number): Promise<RowDataPacket[]> => {
   const query = `

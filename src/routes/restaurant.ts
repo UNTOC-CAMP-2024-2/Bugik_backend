@@ -10,12 +10,6 @@ const router = Router();
 router.get('/', restaurantController.getAllRestaurants);
 
 /**
- * @route POST /restaurants
- * @desc  식당 등록
- */
-router.post('/', restaurantController.createRestaurant);
-
-/**
  * @route GET /restaurants/:restaurantId
  * @desc  특정 식당 상세 조회
  */
@@ -36,12 +30,5 @@ router.get(
   '/:restaurantId/meals/:menuDateId',
   restaurantController.getSingleMeal
 );
-
-
-/** 
- * @route POST /restaurants/:restaurantId/meals
- * @desc  특정 식당의 특정 날짜 식단 생성 
- */
-//router.post('/:restaurantId/meals', restaurantController.createMeal);
 
 export default router;

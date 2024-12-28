@@ -22,6 +22,7 @@ input
   "nickname": "홍길동"
 }
 */
-router.post('/login', userController.loginById);
+
+router.post('/login', userController.login);
 
 export default router;

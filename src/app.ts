@@ -9,7 +9,6 @@ dotenv.config();
 
 const app: Application = express();
 
-// 미들웨어
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -19,12 +18,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1', routes);
 
 // 간단 테스트용 루트 엔드포인트
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (req: Request, res: Response): void => {
   res.send('Bugik API is working');
 });
 
 // 404 처리
-app.use((req: Request, res: Response) => {
+app.use((req: Request, res: Response): void => {
   res.status(404).json({ message: 'Endpoint not found' });
 });
 

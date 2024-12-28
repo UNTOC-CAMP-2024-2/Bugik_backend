@@ -16,7 +16,7 @@ export const getRestaurantRanking = async (): Promise<RowDataPacket[]> => {
   return rows;
 };
 
-// 음식(메뉴) 랭킹 조회
+// 음식 랭킹 조회
 export const getMenuRanking = async (): Promise<RowDataPacket[]> => {
   const query = `
     SELECT 
