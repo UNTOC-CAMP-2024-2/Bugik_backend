@@ -1,4 +1,4 @@
-import { EphemeralKeyInfo } from 'tls';
+import { sendEmailCode } from './../controllers/authController';
 import db from '../data/db';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
@@ -12,38 +12,72 @@ export const isNicknameTaken = async (
   return rows.length == 1;
 }
 
+//이메일 중복 검사
+export const isEmailTaken = async (
+  email: string
+): Promise<boolean> => {
+  const query = `SELECT email FROM users WHERE email = ?`;
+  const [rows] = await db.execute<RowDataPacket[]>(query, [email]);
+  // 어차피 유니크라 1개 아니면 0개
+  return rows.length == 1;
+}
+
+//인증 코드 db에 추가가
+export const createVerifyCode = async (
+  email: string,
+  verificationCode: string,
+  expiresAt: Date
+): Promise<ResultSetHeader> => {
+  await db.execute<ResultSetHeader>('DELETE FROM email_verifications WHERE email = ?', [email]);
+  const [result] = await db.execute<ResultSetHeader>('INSERT INTO email_verifications (email, code, expires_at) VALUES (?, ?, ?)', [
+            email,
+            verificationCode,
+            expiresAt,
+        ]);
+  return result;
+};
+
+//인증 코드 얻기기
+export const getVerifyCode = async (
+  email: string
+): Promise<RowDataPacket[]> => {
+  const [rows] = await db.execute<RowDataPacket[]>( 'SELECT code, expires_at, verified FROM email_verifications WHERE email = ?',
+    [email]);
+  return rows;
+};
+
+//인증 완료 처리리
+export const updateVerifyCode = async (
+  email: string
+): Promise<ResultSetHeader> => {
+  const [result] = await db.execute<ResultSetHeader>('UPDATE email_verifications SET verified = 1 WHERE email = ?', [email]);
+  return result;
+};
+
 // 유저 생성
 export const createUser = async (
-  user_id: number,
-  belonging_uni: string,
+  email: string,
   nickname: string,
-  phone_number: string | null,
-  email: string | null
+  college: string,
 ): Promise<ResultSetHeader> => {
   const query = `
-    INSERT INTO users (user_id, belonging_uni, nickname, phone_number, email)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO users (email, nickname, college)
+    VALUES (?, ?, ?)
   `;
   const [result] = await db.execute<ResultSetHeader>(query, [
-    user_id,
-    belonging_uni,
-    nickname,
-    phone_number,
-    email
-  ]);
-
+   email,nickname,college
+  ])
   return result;
 };
 
 // 로그인 정보 확인
 export const loginByUserId = async (
-  user_id: number,
-  belonging_uni: string,
-  nickname: string
+  email: string,
+  nickname: string,
 ): Promise<RowDataPacket[]> => {
   const query = `
-    SELECT * FROM users WHERE user_id = ? and belonging_uni = ? and nickname = ?
+    SELECT * FROM users WHERE email = ? and nickname = ?
   `;
-  const [rows] = await db.execute<RowDataPacket[]>(query, [user_id,belonging_uni,nickname]);
+  const [rows] = await db.execute<RowDataPacket[]>(query, [email,nickname]);
   return rows;
 };

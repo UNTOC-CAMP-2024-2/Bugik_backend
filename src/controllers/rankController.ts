@@ -3,7 +3,6 @@ import * as rankModel from '../models/rankModel';
 
 export const getRestaurantRank = async (req: Request, res: Response): Promise<void> => {
   try {
-    
     const ranks = await rankModel.getRestaurantRanking();
     res.status(200).json({ data: ranks });
   } catch (error) {
