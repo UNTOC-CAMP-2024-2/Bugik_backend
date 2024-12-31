@@ -14,8 +14,6 @@ authRouter.post('/email/login', authController.loginByEmail);
 authRouter.post('/email/auth', authController.sendEmailCode);  
 authRouter.post('/email/verfiy',authController.verifyEmailCode); 
 
-authRouter.get('/nickname', authController.checkNickname);
-
 authRouter.post('/logout', authController.logout);
 authRouter.post('/token/refresh', authController.refreshToken);
 

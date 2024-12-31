@@ -368,25 +368,3 @@ export const logout = async (
     return res.status(500).json({ message: 'Server error' });
   }
 };
-
-export const checkNickname = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  try {
-    const {nickname} = req.params;
-    if(await isNicknameTaken(nickname) == true) {
-       return res.status(409).json({
-         error: "Nickname already existed",
-         message: `There is already a User whose nickname is ${nickname}`,
-       });
-    }
-    return res.status(200).json({ message: `There is no User whose nickname is ${nickname}` });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      error: "Internal server error",
-      message: "maybe db error",
-    });
-  }
-};
