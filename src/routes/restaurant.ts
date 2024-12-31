@@ -3,17 +3,14 @@ import * as restaurantController from '../controllers/restaurantController';
 
 const router = Router();
 
-/**
- * @route GET /restaurants
- * @desc  식당 목록 조회
- */
+// api/v1/restaurants
+
+//식당 목록 조회
 router.get('/', restaurantController.getAllRestaurants);
 
-/**
- * @route GET /restaurants/:restaurantId
- * @desc  특정 식당 상세 조회
- */
+//식당 별 식사 리스트 조회
 router.get('/:restaurantId', restaurantController.getRestaurantById);
+
 
 /**
  * @route GET /restaurants/:restaurantId/meals

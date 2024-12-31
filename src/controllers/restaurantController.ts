@@ -13,10 +13,9 @@ export const getAllRestaurants = async (req: Request, res: Response): Promise<vo
     console.error(error);
     res.status(500).json({ 
       error: "Internal server error",
-      message: '미안하다 나도 무슨 오류인지 모르겠다' });
+      message: 'maybe database error' });
   }
 };
-
 
 // 식당 단일 조회
 export const getRestaurantById = async (req: Request, res: Response): Promise<void> => {
@@ -27,7 +26,7 @@ export const getRestaurantById = async (req: Request, res: Response): Promise<vo
     if (rows.length === 0) {
       res.status(404).json({ message: 'Restaurant not found' });
     }
-
+    
     res.status(200).json(rows[0]);
   } catch (error) {
     console.error('[getRestaurantById] error:', error);

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
 import routes from './routes/index';
+import { setupSwagger } from './swagger';
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use('/api/v1', routes);
+
+setupSwagger(app);
 
 app.get('/health', (req: Request, res: Response): void => {
   res.send('Bugik API is working');
