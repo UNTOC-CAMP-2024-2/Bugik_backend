@@ -1,4 +1,3 @@
-import { sendEmailCode } from './../controllers/authController';
 import db from '../data/db';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
@@ -22,7 +21,7 @@ export const isEmailTaken = async (
   return rows.length == 1;
 }
 
-//인증 코드 db에 추가가
+//인증 코드 db에 추가
 export const createVerifyCode = async (
   email: string,
   verificationCode: string,
@@ -37,7 +36,7 @@ export const createVerifyCode = async (
   return result;
 };
 
-//인증 코드 얻기기
+//인증 코드 얻기
 export const getVerifyCode = async (
   email: string
 ): Promise<RowDataPacket[]> => {
@@ -46,7 +45,7 @@ export const getVerifyCode = async (
   return rows;
 };
 
-//인증 완료 처리리
+//인증 완료 처리
 export const updateVerifyCode = async (
   email: string
 ): Promise<ResultSetHeader> => {
@@ -81,3 +80,36 @@ export const loginByUserId = async (
   const [rows] = await db.execute<RowDataPacket[]>(query, [email,nickname]);
   return rows;
 };
+
+export const getUserById = async (
+  id: number
+): Promise<RowDataPacket[]> => {
+  const query = `
+    SELECT * FROM users WHERE id = ?
+  `;
+  const [rows] = await db.execute<RowDataPacket[]>(query, [id]);
+  return rows;
+};
+
+export const getUserByMail = async (
+  email: string,
+): Promise<RowDataPacket[]> => {
+  const query = `
+    SELECT * FROM users WHERE email = ?
+  `;
+  const [rows] = await db.execute<RowDataPacket[]>(query, [email]);
+  return rows;
+};
+
+export const updateUserById = async (
+  id: number,
+  nickname: string,
+  college: string,
+): Promise<RowDataPacket[]> => {
+  const query = `
+    UPDATE users SET nickname = ?, college = ? WHERE id = ?
+  `;
+  const [rows] = await db.execute<RowDataPacket[]>(query, [nickname,college,id]);
+  return rows;
+};
+
