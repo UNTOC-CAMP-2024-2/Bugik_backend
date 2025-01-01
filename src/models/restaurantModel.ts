@@ -22,42 +22,72 @@ export const getAllRestaurants = async (): Promise<RowDataPacket[]> => {
 };
 
 // 식당 단일 조회 by ID
-export const getRestaurantById = async (restaurantId: number): Promise<RowDataPacket[]> => {
+export const getRestaurantMealById = async (restaurantId: number): Promise<RowDataPacket[]> => {
   const query = `
-    SELECT 
-      restaurant_id,
-      name,
-      type
-    FROM restaurants
+    SELECT
+      restaurant_id, 
+      menu_date_id,
+      date,
+      time  
+    FROM restaurants_meal
     WHERE restaurant_id = ?
   `;
   const [rows] = await db.execute<RowDataPacket[]>(query, [restaurantId]);
   return rows;
 };
 
-// 4) 식당 수정
-export const updateRestaurant = async (
-  restaurantId: number,
-  restaurant: Restaurant
-): Promise<ResultSetHeader> => {
-  const { name, type } = restaurant;
+export const getRestaurantMealFoodByMenuDateId = async (menu_date_id: number): Promise<RowDataPacket[]> => {
   const query = `
-    UPDATE restaurants
-    SET name = ?, type = ?
-    WHERE restaurant_id = ?
+    SELECT
+      rmf.menu_date_id,
+      rmf.mealtype,
+      rmf.item_id,
+      fi.name,
+      fi.explanation
+    FROM restaurants_meal_food AS rmf
+    JOIN food_info AS fi
+    ON rmf.item_id = fi.item_id
+    WHERE rmf.menu_date_id = ?
   `;
-  const [result] = await db.execute<ResultSetHeader>(query, [name, type, restaurantId]);
-  return result;
+  const [rows] = await db.execute<RowDataPacket[]>(query, [menu_date_id]);
+  return rows;
 };
 
-// 5) 식당 삭제
-export const deleteRestaurant = async (
-  restaurantId: number
-): Promise<ResultSetHeader> => {
+//날짜별 모든 식당의 모든 식사의 모든 식단단 가져오기 - 메인화면을 위한것
+export const getAllMeals = async (date: Date | string): Promise<RowDataPacket[]> => {
+  //아마 캐싱을 해야할듯
   const query = `
-    DELETE FROM restaurants
-    WHERE restaurant_id = ?
+   SELECT 
+    rm.menu_date_id,
+    rm.restaurant_id,
+    rm.date,
+    r.name AS restaurant_name,
+    r.type AS restaurant_type,
+    rm.time,
+    rmf.mealtype,
+    rmf.item_id,
+    fi.name AS food_name,
+    fi.explanation AS food_explanation
+  FROM 
+    restaurants_meal AS rm
+  JOIN 
+    restaurants AS r
+  ON 
+    rm.restaurant_id = r.restaurant_id
+  JOIN 
+    restaurants_meal_food AS rmf
+  ON 
+    rm.menu_date_id = rmf.menu_date_id
+  JOIN 
+    food_info AS fi
+  ON 
+    rmf.item_id = fi.item_id
+  WHERE 
+    rm.date = ?;
   `;
-  const [result] = await db.execute<ResultSetHeader>(query, [restaurantId]);
-  return result;
+  console.log(date);
+  const [rows] = await db.execute<RowDataPacket[]>(query,[date]);
+  return rows;
 };
+
+
