@@ -3,6 +3,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import multer from 'multer'
+import path from "path";
 
 import routes from './routes/index';
 import { setupSwagger } from './swagger';
@@ -16,6 +18,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use('/api/v1', routes);
 

@@ -3,16 +3,11 @@ import * as rankController from '../controllers/rankController';
 
 const router = Router();
 
-/**
- * @route GET /rank/restaurants
- * @desc  식당 랭킹 조회
- */
-router.get('/restaurants', rankController.getRestaurantRank);
 
-/**
- * @route GET /rank/foods
- * @desc  음식 랭킹 조회
- */
-router.get('/foods', rankController.getFoodRank);
+router.get('/restaurants/all', rankController.getRestaurantRank);
+router.get('/restaurants/uni', rankController.getRestaurantRank);
+router.get('/restaurants/dorm', rankController.getRestaurantRank);
+
+router.get('/foods/all', rankController.getFoodRank);
 
 export default router;
