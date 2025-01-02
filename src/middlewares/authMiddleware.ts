@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-export function verifyAccessToken(req: Request, res: Response, next: NextFunction) {
+export function verifyAccessToken(req: Request, res: Response, next: NextFunction): any {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
