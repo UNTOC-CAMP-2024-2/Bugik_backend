@@ -19,7 +19,7 @@ export const addReviewByMenuDateId = async (req: Request, res: Response): Promis
         menu_date_id,
         email,
         comment,
-        photo: file ? `/uploads/${file.filename}` : null,
+        photo: file ? `${(req.file as any).key}` : 'NO_PHOTO',
     };
     /*
     
@@ -74,10 +74,22 @@ export const addReviewByMenuDateId = async (req: Request, res: Response): Promis
 
 export const getReviewByMenuDateId = async (req: Request, res: Response): Promise<any> => {
   try {
-    //mealReview 에서 menu_date_id로 검색해서 review_id 받아오기
-    //foodReview에서 review_id로 검색해서 food review들 받아오기
-    //그리고 파일 경로에서 파일 찾아서 보내기
-    res.status(200).json();
+    const { menu_date_id } = req.params;
+    const mealReviews = await reviewModel.getMealReviewByMenuDateId(Number(menu_date_id));
+
+    const mealReviewsWithFood = await Promise.all(
+      mealReviews.map(async (mr) => {
+        const foodReviews = await reviewModel.getAllFoodReviewByReviewId(Number(mr.review_id));
+        return {
+          ...mr,
+          food_reviews: foodReviews,
+        };
+      })
+    );
+
+    res.status(200).json({
+      meal_reviews: mealReviewsWithFood,
+    });
   } catch (error) {
     console.error('[getFoodRank] error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -86,6 +98,7 @@ export const getReviewByMenuDateId = async (req: Request, res: Response): Promis
 
 export const getPhotoFromS3 = async (req: Request, res: Response) => {
   try {
+
     const { key } = req.params;
 
     const command = new GetObjectCommand({
@@ -93,19 +106,14 @@ export const getPhotoFromS3 = async (req: Request, res: Response) => {
       Key: key,
     });
 
-    // Send the command to S3
     const data = await s3.send(command);
 
-    // In Node.js, data.Body should be a Readable stream
     const stream = data.Body as Readable;
 
-    // If an error occurs on the stream, handle it
     stream.on('error', (err) => {
       console.error('Stream error:', err);
       res.status(404).json({ error: 'File not found or error streaming file.' });
     });
-
-    // Pipe the stream to the Express response
     stream.pipe(res);
   } catch (error) {
     console.error('S3 error:', error);

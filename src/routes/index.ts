@@ -4,6 +4,7 @@ import restaurantRouter from './restaurant';
 import rankRouter from './rank';
 import authRouter from './auth';
 import reviewRouter from './review';
+import contentRouter from './contents';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use('/auth',authRouter);
 router.use('/restaurants',restaurantRouter);
 router.use('/rank',rankRouter);
 router.use('/review',reviewRouter);
+router.use('/contents',contentRouter);
 
 export default router;

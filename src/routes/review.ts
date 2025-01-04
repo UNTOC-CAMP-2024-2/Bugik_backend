@@ -24,9 +24,11 @@ const router = Router();
 //router.post('/',verifyAccessToken,upload.single("photo"), reviewController.addReviewByMenuDateId);
 router.post('/',upload.single("photo"), reviewController.addReviewByMenuDateId);
 
+router.get('/photo/:key', reviewController.getPhotoFromS3);
+
 // 2. 특정 식단의 리뷰 조회
 router.get('/:menu_date_id', reviewController.getReviewByMenuDateId);
 
-router.post('/photo', verifyAccessToken, reviewController.getPhotoFromS3);
+
 
 export default router;

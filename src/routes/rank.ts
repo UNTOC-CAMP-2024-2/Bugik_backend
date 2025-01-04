@@ -5,8 +5,8 @@ const router = Router();
 
 
 router.get('/restaurants/all', rankController.getRestaurantRank);
-router.get('/restaurants/uni', rankController.getRestaurantRank);
-router.get('/restaurants/dorm', rankController.getRestaurantRank);
+router.get('/restaurants/uni', rankController.getRestaurantRankUni);
+router.get('/restaurants/dorm', rankController.getRestaurantRankDorm);
 
 router.get('/foods/all', rankController.getFoodRank);
 
