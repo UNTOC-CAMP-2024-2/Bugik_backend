@@ -1,8 +1,9 @@
 import { Router } from 'express';
-//import * as rankController from '../controllers/contentsController';
+import * as contentController from '../controllers/contentsController';
 
 const router = Router();
 
-router.get('/', );
+router.get('/chatgpt', contentController.getInfoFromChatgpt);
+router.get('/geminai', contentController.getInfoFromGeminai);
 
 export default router;

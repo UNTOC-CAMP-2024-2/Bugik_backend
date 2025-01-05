@@ -112,4 +112,3 @@ export const updateUserById = async (
   const [rows] = await db.execute<RowDataPacket[]>(query, [nickname,college,id]);
   return rows;
 };
-
