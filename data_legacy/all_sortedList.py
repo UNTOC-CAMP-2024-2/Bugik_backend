@@ -8,7 +8,7 @@ import os
 
 base_directory = os.path.dirname(os.path.abspath(__file__))
 
-file_path = os.path.join(base_directory, 'samples', 'dorm.json')  # dorm.json 위치
+file_path = os.path.join(base_directory, 'samples', 'dorm_meals.json')  # dorm_meals.json 위치
 menu_list_path = os.path.join(base_directory, 'menus', 'menu_list.json')  
 new_menu_list_path = os.path.join(base_directory, 'menus', 'new_menu_list.json')
 
@@ -151,7 +151,7 @@ def extract_menu_items_from_file(file_path):
 
     return restaurant_menus
 
-def extract_all_menu_items():    #요거는 메뉴 추출을 단독으로 하는 함수 (중복확인 없이 그냥)  //딕셔너리
+def extract_all_menu_items():    #메뉴 추출을 단독으로 하는 함수 (중복확인 없이 그냥)  //딕셔너리
 
     all_restaurant_menus = extract_menu_items_from_file(file_path)
     
@@ -211,7 +211,7 @@ def update_menus():
 
 if not os.path.exists(menu_list_path):
     result = extract_all_menu_items()  #result = 딕셔너리!!!! ex) 문창 : [밥, 국 ...]
-    convertTojson(result, menu_list_path)  #먼저 호출해서 menu_list를 일단 생성해
+    convertTojson(result, menu_list_path)  #먼저 호출해서 menu_list를 일단 생성
 
 
 update_menus()  #추가된 놈들을 업데이트해서 기존 menu_list.json에 추가, new_menu_list.json 만들어서 새 메뉴 업뎃

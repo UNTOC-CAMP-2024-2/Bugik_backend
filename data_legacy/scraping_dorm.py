@@ -1,11 +1,3 @@
-# 스크래핑
-
-# : 6개월치는 가져올 수 있게 스크래핑
-# 코드 실행시 한번에 스크래핑, 분류 
-# --> 아마 pandas로 관리해야할 것 같다.
-# json 파일로 다루지말고 파이썬으로 처음부터 다루자잇
-
-
 import os
 import json
 import re
@@ -18,9 +10,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 # Chrome 드라이버 설정
 service = Service(ChromeDriverManager().install())
 options = webdriver.ChromeOptions()
-#options.add_argument('--headless')
+options.add_argument('--headless=new')
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
+
 
 # 브라우저 실행
 driver = webdriver.Chrome(service=service)
