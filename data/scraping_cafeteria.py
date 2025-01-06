@@ -101,5 +101,3 @@ for target in res:
 
 # 브라우저 닫기
 driver.quit()
-
-
