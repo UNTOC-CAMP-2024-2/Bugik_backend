@@ -1,17 +1,20 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import http from 'http';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import multer from 'multer'
 import path from "path";
 
 import routes from './routes/index';
 import { setupSwagger } from './swagger';
 
+import { initializeSocket } from './sockets/socket'; // 소켓 초기화 함수
+
 dotenv.config();
 
 const app: Application = express();
+const server = http.createServer(app);
 
 app.use(cors());
 app.use(morgan('dev'));
@@ -21,6 +24,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use('/api/v1', routes);
+initializeSocket(server);
 
 setupSwagger(app);
 

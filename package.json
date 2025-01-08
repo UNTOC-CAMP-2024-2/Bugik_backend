@@ -87,6 +87,7 @@
     "set-function-length": "^1.2.2",
     "setprototypeof": "^1.2.0",
     "side-channel": "^1.0.6",
+    "socket.io": "^4.8.1",
     "sqlstring": "^2.3.3",
     "statuses": "^2.0.1",
     "supertest": "^7.0.0",
