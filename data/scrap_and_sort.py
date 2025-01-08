@@ -4,6 +4,9 @@ import re
 import requests
 from datetime import datetime, timedelta
 
+import mysql.connector
+from mysql.connector import Error
+
 # API URL 정보
 API_URLS = {
     "자유": "https://middle.pusan.ac.kr:8443/meal/sub?no=13&startDt={start}&endDt={end}",
@@ -83,12 +86,16 @@ def clean_menu(menu):
     menu = re.sub(r'\s+', ' ', menu)  # 공백 제거
 
     menu = re.sub(r'&', '', menu)
-    
+
+    #작동 안함
+    menu = menu.remove('정보')
+    #menu = re.sub(r'정보', '', menu)
+
     return menu.strip()
 
 
-# 데이터 가져오기 및 정리
-def fetch_and_clean_meal_data():
+# 데이터 가져오기 및 정리 
+def scrap_and_formatting():
     start_date = datetime.today()
     date_ranges = generate_date_ranges(start_date, months=2)
 
@@ -103,7 +110,7 @@ def fetch_and_clean_meal_data():
                 meals = response.json()
                 grouped_meals = {}
                 for meal in meals:
-                    date = meal.get("mealDate")
+                    date = meal.get("mealDate") 
                     meal_kind = meal.get("codeNm")
                     meal_menu = meal.get("mealNm", "정보 없음").replace("\n", ", ")
 
@@ -141,7 +148,15 @@ def fetch_and_clean_meal_data():
                         ]
                     })
             else:
-                print(f"⚠️ {res_name} 데이터 요청 실패 (상태 코드: {response.status_code})")
+                print(f"{res_name} 데이터 요청 실패 (상태 코드: {response.status_code})")
+
+    output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'samples')
+    os.makedirs(output_dir, exist_ok=True)
+    filepath = os.path.join(output_dir, "dorm_meals.json")
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(all_data, f, ensure_ascii=False, indent=2)
+
 
     return all_data
 
@@ -221,7 +236,178 @@ def update_menus(data):
     updated_menus = {restaurant: list(existing_menu_sets[restaurant]) for restaurant in restaurant_keys}
     convert_to_json(updated_menus, menu_list_path)
 
-# 메인 실행 로직
+#-------------mySQL연결 (db에서의 f-string은 자제하자)------------------------------------------------------
+
+def create_connection():
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='1234',
+            database='bugik'
+        )
+        if connection.is_connected():
+            print("MySQL 연결 성공")
+        return connection
+    
+    except Error as e:
+        print(f"Error: {e}")
+        return None
+    
+
+
+def load_json_menu_dict(filename='menu_list.json'):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    menu_list_path = os.path.join(base_dir, 'menus', filename)
+
+    with open(menu_list_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+    
+def load_json_for_date(filename='dorm_meals.json'):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, 'samples', filename)
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def div_mealtype(menu):
+    dict = {
+        '주요리': [], 
+        '밥/면류': [], 
+        '국/찌개': [], 
+        '디저트': [], 
+        '반찬': []
+    }
+    
+
+    dessert_li = "주스,쥬스,우유,요거트,샌드,요구르트,과일,바나나,귤,요러브,복숭아,사이다,딸기,파인애플,후르츠,방울토마토그린샐러드,콜라,쿨피스"
+    mainDish = "제육,찜,묵은지고등어무조림,야채볶음,순대볶음,구이,전,미트볼폭찹조림,치킨,갈비,치킨까스,돈까스,불고기,떡갈비,또띠아,토스트,강정,탕수,카츠"
+
+    dessert_li = dessert_li.split(',')
+    mainDish = mainDish.split(',')
+
+    if '국' in menu or '탕' in menu or '찌개' in menu:
+        dict['국/찌개'].append(menu)
+    elif '밥' in menu or '면' in menu or '짬뽕' in menu or '국수' in menu:
+        dict['밥/면류'].append(menu)
+    elif any(des in menu for des in dessert_li):
+        dict['디저트'].append(menu)
+    elif any(main_d in menu for main_d in mainDish):
+        dict["주요리"].append(menu)
+    else:
+        dict['반찬'].append(menu)
+
+    return dict
+
+def insert_data_into_db(menu_list, dorm_meals):
+
+    # + dorm_meals.json에서 날짜, 요일, 조식.. 이런 거 다 가져와서 넣어야해
+
+    # <database's column>
+    # restaurant_meal_food 의 mealtype = 주요리..
+    # restaurant_meal의 time = 조기, 조식..
+    # menu_date = 아마 요일
+    # date = 아마 날짜
+
+    # 뭔가 중복된 메뉴는 기존의 id를 써야하는 로직도 필요할 듯 하다.
+    connection = create_connection()
+    if connection is None:
+        print("데이터베이스 연결 실패")
+        return
+    
+    cursor = connection.cursor()
+
+    try:
+        # 'restaurants' 테이블에 레스토랑 정보 삽입
+        for restaurant, food_list in menu_list.items():
+            restaurant_type = '기숙사' if restaurant in ['자유', '진리', '웅비'] else '학교식당'
+
+
+        # 'restaurants_meal' 테이블에 날짜 및 시간 정보 삽입
+        for meal_data in dorm_meals:
+            restaurant_name = meal_data['res']
+            date = meal_data['date']
+            meals = meal_data['meals']
+            
+            # 식당 정보 찾기 (식당 이름으로 ID 찾기)
+            cursor.execute("SELECT restaurant_id FROM restaurants WHERE name = %s", (restaurant_name,))
+            restaurant_id = cursor.fetchone()
+            if not restaurant_id:
+                print(f"식당 '{restaurant_name}'이 존재하지 않습니다.")
+                continue
+            restaurant_id = restaurant_id[0]
+
+            for meal in meals:
+                when = meal['when']
+                menu = meal['menu']
+                
+                # 'restaurants_meal'에 삽입
+                cursor.execute(
+                    "INSERT INTO restaurants_meal (restaurant_id, date, time) VALUES (%s, %s, %s)",
+                    (restaurant_id, date, when)
+                )
+                menu_date_id = cursor.lastrowid  # 마지막 삽입된 메뉴 날짜 ID 가져오기
+
+                # 메뉴 항목을 mealType에 따라 분류
+                meal_types = div_mealtype(menu)
+
+                # 'restaurants_meal_food'에 분류된 메뉴 항목 삽입
+                for meal_type, items in meal_types.items():
+                    for item in items:
+                        cursor.execute(
+                            "INSERT INTO food_info (name, restaurant_id) VALUES (%s, %s)",
+                            (item, restaurant_id)
+                        )
+                        item_id = cursor.lastrowid  # 마지막 삽입된 음식 항목 ID 가져오기
+                        
+              
+                        cursor.execute(
+                            "INSERT INTO restaurants_meal_food (menu_date_id, mealtype, item_id) VALUES (%s, %s, %s)",
+                            (menu_date_id, meal_type, item_id)
+                        )
+
+        connection.commit()
+        print("데이터베이스 삽입 성공")
+
+    except Error as e:
+        print(f"DB 삽입 중 오류 발생: {e}")
+    
+    finally:
+        cursor.close()
+        connection.close()
+        print("데이터베이스 연결 종료")
+
+
+def main():
+    # 데이터베이스 연결 생성
+    connection = create_connection()
+
+    if connection is not None:
+        try:
+            # 메뉴 데이터와 기숙사 식사 데이터 로드
+            menus = load_json_menu_dict('menu_list.json')
+            dorm_data = load_json_for_date('dorm_meals.json')
+
+            # 메뉴 삽입 함수 호출
+            insert_data_into_db(menus, dorm_data)
+        
+        except FileNotFoundError as e:
+            print(f"파일을 찾을 수 없음: {e}")
+        except json.JSONDecodeError as e:
+            print(f"JSON 디코딩 오류: {e}")
+        except Exception as e:
+            print(f"요상한 오류 발생: {e}")
+        
+        finally:
+            # 데이터베이스 연결 종료
+            if connection.is_connected():
+                connection.close()
+                print("데이터베이스 연결 종료.")
+    else:
+        print("MySQL 연결 실패. 프로그램 종료.")
+
+
+
 if __name__ == "__main__":
-    meal_data = fetch_and_clean_meal_data()
-    update_menus(meal_data)
+    main()
