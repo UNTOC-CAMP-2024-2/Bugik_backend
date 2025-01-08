@@ -102,7 +102,7 @@ def save_to_json(data, filename="dorm_meals.json"):
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ {filepath}에 데이터가 저장되었습니다.")
+    print(f"{filepath}에 데이터가 저장되었습니다.")
 
 # 메인 실행 로직
 if __name__ == "__main__":
