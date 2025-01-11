@@ -76,7 +76,7 @@ CREATE TABLE `tickets` (
     `title` VARCHAR(255) NOT NULL, 
     `description` TEXT NOT NULL, 
     `price` INT NOT NULL, 
-    `status` ENUM('거래가능', '거래완료', '거래취소') DEFAULT '거래가능능',
+    `status` ENUM('거래가능', '거래완료', '거래취소') DEFAULT '거래가능',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`seller_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
