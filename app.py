@@ -14,7 +14,7 @@ def get_db_connection():
         user="root",
         password="1234",
         database="bugik",
-        charset='utf8mb4'
+        charset='utf8mb4'npm 
     )
 
 # 특정 날짜에 대한 메뉴 조회 API

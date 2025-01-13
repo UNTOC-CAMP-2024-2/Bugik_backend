@@ -53,4 +53,4 @@ export const getAllChatRooms = async (req: Request, res: Response): Promise<void
   }
 };
 
-export getAllChatRooms = async (req: Request, res: Response): Promise<void> => {
+//export getAllChatRooms = async (req: Request, res: Response): Promise<void> => {
