@@ -1,10 +1,10 @@
-
 import { Router } from 'express';
 import * as reviewController from '../controllers/reviewController';
-import {verifyAccessToken} from '../middlewares/authMiddleware';
+import { verifyAccessToken } from '../middlewares/authMiddleware';
 import upload from '../utils/upload';
 
 const router = Router();
+
 // const storage = multer.diskStorage({
 //     destination: (req, file, cb) => {
 //         cb(null, path.join(__dirname, "../../uploads")); 
@@ -18,136 +18,67 @@ const router = Router();
 
 // const upload = multer({ storage });
 
-
-/**
- * @swagger
- * /reviews:
- *   get:
- *     summary: Get all reviews
- *     responses:
- *       200:
- *         description: A list of reviews
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   review_id:
- *                     type: integer
- *                   restaurant_id:
- *                     type: integer
- *                   user_id:
- *                     type: integer
- *                   rating:
- *                     type: number
- *                   comment:
- *                     type: string
- */
-router.get('/', reviewController.getAllReviews);
-
-/**
- * @swagger
- * /reviews/{reviewId}:
- *   get:
- *     summary: Get review by ID
- *     parameters:
- *       - in: path
- *         name: reviewId
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Review details
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 review_id:
- *                   type: integer
- *                 restaurant_id:
- *                   type: integer
- *                 user_id:
- *                   type: integer
- *                 rating:
- *                   type: number
- *                 comment:
- *                   type: string
- */
-router.get('/:reviewId', reviewController.getReviewById);
+// api/v1/review
 
 /**
  * @swagger
  * /reviews:
  *   post:
- *     summary: Create a new review
+ *     summary: Add a review
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               restaurant_id:
- *                 type: integer
- *               user_id:
- *                 type: integer
- *               rating:
- *                 type: number
+ *               menu_date_id:
+ *                 type: string
+ *               email:
+ *                 type: string
  *               comment:
  *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
- *         description: Review created
+ *         description: Review added
  */
-router.post('/', reviewController.createReview);
+router.post('/', upload.single("photo"), reviewController.addReviewByMenuDateId);
 
 /**
  * @swagger
- * /reviews/{reviewId}:
- *   put:
- *     summary: Update a review
+ * /reviews/photo/{key}:
+ *   get:
+ *     summary: Get photo from S3
  *     parameters:
  *       - in: path
- *         name: reviewId
+ *         name: key
  *         required: true
  *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               rating:
- *                 type: number
- *               comment:
- *                 type: string
+ *           type: string
  *     responses:
  *       200:
- *         description: Review updated
+ *         description: Photo retrieved
  */
-router.put('/:reviewId', reviewController.updateReview);
+router.get('/photo/:key', reviewController.getPhotoFromS3);
 
 /**
  * @swagger
- * /reviews/{reviewId}:
- *   delete:
- *     summary: Delete a review
+ * /reviews/{menu_date_id}:
+ *   get:
+ *     summary: Get reviews by menu date ID
  *     parameters:
  *       - in: path
- *         name: reviewId
+ *         name: menu_date_id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
- *         description: Review deleted
+ *         description: Reviews retrieved
  */
-router.delete('/:reviewId', reviewController.deleteReview);
+router.get('/:menu_date_id', reviewController.getReviewByMenuDateId);
 
 export default router;

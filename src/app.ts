@@ -29,6 +29,7 @@ app.use(cookieParser());
 app.use('/api/v1', routes);
 
 // 서버 설정
+setupSwagger(app);
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
@@ -45,8 +46,6 @@ io.on('connection', (socket) => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 });
-
-setupSwagger(app);
 
 app.get('/health', (req: Request, res: Response): void => {
   res.send('Bugik API is working');
