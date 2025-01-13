@@ -43,7 +43,6 @@ def get_korean_day_of_week(date_str):
     return days[date_obj.weekday()]
 
 
-# 데이터 가져오기 및 정리 
 def scrap_and_formatting():
     start_date = datetime.today()
     date_ranges = generate_date_ranges(start_date, months=2)
@@ -55,13 +54,23 @@ def scrap_and_formatting():
             url = url_template.format(start=start, end=end)
             print(f"{res_name} 데이터를 요청 중: {url}")
             response = requests.get(url)
+
             if response.status_code == 200:
                 meals = response.json()
+                if not meals:  # 데이터가 비어 있는 경우
+                    print(f"{res_name}에 대한 데이터가 비어 있습니다: {url}")
+                    
+
                 grouped_meals = {}
                 for meal in meals:
-                    date = meal.get("mealDate") 
-                    meal_kind = meal.get("codeNm")
-                    meal_menu = meal.get("mealNm", "정보 없음").replace("\n", ", ")
+                    date = meal.get("mealDate", "날짜 없음")
+                    meal_kind = meal.get("codeNm", "종류 없음")
+                    meal_menu = meal.get("mealNm", None)
+
+                    # 메뉴가 없거나 빈 문자열인 경우
+                    if not meal_menu or meal_menu.strip() == "" or meal_menu=="해당일에 등록된 식사 정보가 없습니다.":
+                        print(f"{date}의 {meal_kind} 메뉴가 없습니다. '정보 없음' 처리.")
+                        meal_menu = "정보 없음"
 
                     if date not in grouped_meals:
                         grouped_meals[date] = {
@@ -70,7 +79,8 @@ def scrap_and_formatting():
                             "meals": {}
                         }
 
-                    if meal_kind in ["조식", "중식", "석식"]:
+                    # 올바른 식사 종류만 추가
+                    if meal_kind in ["조기", "조식", "중식", "석식"]:
                         grouped_meals[date]["meals"][meal_kind] = meal_menu
 
                 for date, data in grouped_meals.items():
@@ -79,6 +89,11 @@ def scrap_and_formatting():
                         "date": data["date"],
                         "day": data["day"],
                         "meals": [
+                            {
+                                "when": "조기",
+                                "mealType": "기숙사식",
+                                "menu": data["meals"].get("조기", "정보 없음")
+                            },
                             {
                                 "when": "조식",
                                 "mealType": "기숙사식",
@@ -106,8 +121,9 @@ def scrap_and_formatting():
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(all_data, f, ensure_ascii=False, indent=2)
 
-
     return all_data
+
+
 
 
 
@@ -328,8 +344,6 @@ def div_mealtype(menu):
 
 def insert_data_into_db(menu_list, dorm_meals):
     
-    # db에 데이터 초기화하려면은 npm run seed
-    
     connection = create_connection()
     if connection is None:
         print("데이터베이스 연결 실패")
@@ -423,34 +437,32 @@ def insert_data_into_db(menu_list, dorm_meals):
                     #print(f"'{when}'의 식사 메뉴 분류: {meal_types}")
 
                     # restaurants_meal_food에 삽입
+                    # restaurants_meal_food에 삽입
                     for meal_type, items in meal_types.items():
                         for item in items:
+                            # food_info 테이블에서 item_id 조회
                             cursor.execute(
                                 "SELECT item_id FROM food_info WHERE name = %s AND restaurant_id = %s",
                                 (item, restaurant_id)
                             )
                             item_id = cursor.fetchone()
                             if not item_id:
-                                #print(f"메뉴 '{item}'이 food_info에 존재하지 않습니다. 건너뛰어잇.")
+                                # 메뉴가 food_info 테이블에 없는 경우 건너뛰기
                                 continue
                             item_id = item_id[0]
 
-                            # restaurants_meal_food 테이블에 삽입
+                            # 중복 데이터 무시하고 삽입
                             cursor.execute(
-                                "SELECT COUNT(*) FROM restaurants_meal_food WHERE menu_date_id = %s AND item_id = %s",
-                                (menu_date_id, item_id)
+                                """
+                                INSERT IGNORE INTO restaurants_meal_food (menu_date_id, mealtype, item_id)
+                                VALUES (%s, %s, %s)
+                                """,
+                                (menu_date_id, meal_type, item_id)
                             )
-                            result = cursor.fetchone()
 
-                            # 결과가 있을 때만 처리
-                            if result and result[0] == 0:
-                                cursor.execute(
-                                    "INSERT INTO restaurants_meal_food (menu_date_id, mealtype, item_id) VALUES (%s, %s, %s)",
-                                    (menu_date_id, meal_type, item_id)
-                                )
+            # 커밋
+            connection.commit()
 
-
-            connection.commit()  # 모든 작업 후 한 번만 commit
             #print(f"'{restaurant_name}'의 데이터 삽입 완료.")
 
         
@@ -466,6 +478,9 @@ def insert_data_into_db(menu_list, dorm_meals):
 
 
 def main():
+    scraped_data = scrap_and_formatting()
+    update_menus(scraped_data)
+
     # 데이터베이스 연결 생성
     connection = create_connection()
 
