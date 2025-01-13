@@ -4,27 +4,47 @@ import http from 'http';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import path from "path";
 
 import routes from './routes/index';
 import { setupSwagger } from './swagger';
 
-import { initializeSocket } from './sockets/socket'; // 소켓 초기화 함수
+import { Server as SocketIOServer } from 'socket.io';
+import registerChatSocketHandlers from './sockets/chatsocket';
 
 dotenv.config();
-
 const app: Application = express();
-const server = http.createServer(app);
 
-app.use(cors());
+// CORS 설정
+app.use(cors({
+  origin: '*', // 모든 출처에서 요청을 허용
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // 허용하는 HTTP 메서드 설정
+  allowedHeaders: ['Content-Type', 'Authorization'] // 허용하는 헤더 설정
+}));
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
+// app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use('/api/v1', routes);
-initializeSocket(server);
+
+// 서버 설정
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log(`Client connected: ${socket.id}`);
+  registerChatSocketHandlers(io, socket);
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});
 
 setupSwagger(app);
 
@@ -36,4 +56,4 @@ app.use((req: Request, res: Response): void => {
   res.status(404).json({ message: 'Endpoint not found' });
 });
 
-export default app;
+export default server;

@@ -12,7 +12,7 @@ export const getRestaurantRank = async (req: Request, res: Response): Promise<vo
 };
 
 export const getRestaurantRankDorm = async (req: Request, res: Response): Promise<void> => {
-  try {
+  try { 
     const ranks = await rankModel.getRestaurantRankingDorm();
     res.status(200).json({ data: ranks });
   } catch (error) {
