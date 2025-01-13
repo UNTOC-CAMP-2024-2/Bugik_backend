@@ -3,6 +3,7 @@ import json
 import re
 import requests
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 import mysql.connector
 from mysql.connector import Error
@@ -40,55 +41,6 @@ def get_korean_day_of_week(date_str):
     days = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     return days[date_obj.weekday()]
-
-# 메뉴 정리 함수
-def clean_menu(menu): 
-    
-    menu = re.sub(r'(\d+kcal|\d+g|영업시간\(\d{0,2}:\d{0,2}~\d{0,2}:\d{0,2}\)|운영시간\(:~:\)|없음|문의:\s*\d+-\d+-\d+)', '', menu)
-    menu = re.sub(r'\d+', '', menu)  #수
-    menu = re.sub(r'운영시간\(:~:\)', '', menu)
-    menu = re.sub(r'제외', '', menu)
-    menu = re.sub(r'(\d+kcal|\d+g|운영시간\(.*?\)|제외|문의:\s*\d+-\d+-\d+|없음)', '', menu)
-    
-    menu = re.sub(r'\(C\)', '', menu)
-    menu = re.sub(r'\(C', '', menu)
-    menu = re.sub(r'C\)', '', menu)
-    menu = re.sub(r'C', '', menu)
-
-    menu = re.sub(r'\(D\)', '', menu)
-    menu = re.sub(r'\(D', '', menu)
-    menu = re.sub(r'D\)', '', menu)
-    menu = re.sub(r'D', '', menu)
-
-    menu = re.sub(r'\(P\)', '', menu)
-    menu = re.sub(r'\(P', '', menu)
-    menu = re.sub(r'P\)', '', menu)
-    menu = re.sub(r'P', '', menu)
-
-    menu = re.sub(r'\(E\)', '', menu)
-    menu = re.sub(r'\(E', '', menu)
-    menu = re.sub(r'E\)', '', menu)
-    menu = re.sub(r'E', '', menu)
-
-    menu = re.sub(r'\(F\)', '', menu)
-    menu = re.sub(r'\(F', '', menu)
-    menu = re.sub(r'F\)', '', menu)
-    menu = re.sub(r'F', '', menu)
-
-    menu = re.sub(r'\(B\)', '', menu)
-    menu = re.sub(r'\(B', '', menu)
-    menu = re.sub(r'B\)', '', menu)
-    menu = re.sub(r'B', '', menu)
-
-    menu = re.sub(r'<.*?>', '', menu) #<~~> 제거
-    menu = re.sub(r'\(신라\)', '', menu)
-
-    menu = re.sub(r'\s+', ' ', menu)  # 공백 제거
-
-    menu = re.sub(r'&', '', menu)
-    menu = re.sub(r'정보', '', menu)
-
-    return menu.strip()
 
 
 # 데이터 가져오기 및 정리 
@@ -156,6 +108,60 @@ def scrap_and_formatting():
 
 
     return all_data
+
+
+
+
+# 메뉴 정리 함수
+def clean_menu(menu): 
+    
+    menu = re.sub(r'(\d+kcal|\d+g|영업시간\(\d{0,2}:\d{0,2}~\d{0,2}:\d{0,2}\)|운영시간\(:~:\)|없음|문의:\s*\d+-\d+-\d+)', '', menu)
+    menu = re.sub(r'\d+', '', menu)  #수
+    menu = re.sub(r'운영시간\(:~:\)', '', menu)
+    menu = re.sub(r'제외', '', menu)
+    menu = re.sub(r'(\d+kcal|\d+g|운영시간\(.*?\)|제외|문의:\s*\d+-\d+-\d+|없음)', '', menu)
+    
+    menu = re.sub(r'\(C\)', '', menu)
+    menu = re.sub(r'\(C', '', menu)
+    menu = re.sub(r'C\)', '', menu)
+    menu = re.sub(r'C', '', menu)
+
+    menu = re.sub(r'\(D\)', '', menu)
+    menu = re.sub(r'\(D', '', menu)
+    menu = re.sub(r'D\)', '', menu)
+    menu = re.sub(r'D', '', menu)
+
+    menu = re.sub(r'\(P\)', '', menu)
+    menu = re.sub(r'\(P', '', menu)
+    menu = re.sub(r'P\)', '', menu)
+    menu = re.sub(r'P', '', menu)
+
+    menu = re.sub(r'\(E\)', '', menu)
+    menu = re.sub(r'\(E', '', menu)
+    menu = re.sub(r'E\)', '', menu)
+    menu = re.sub(r'E', '', menu)
+
+    menu = re.sub(r'\(F\)', '', menu)
+    menu = re.sub(r'\(F', '', menu)
+    menu = re.sub(r'F\)', '', menu)
+    menu = re.sub(r'F', '', menu)
+
+    menu = re.sub(r'\(B\)', '', menu)
+    menu = re.sub(r'\(B', '', menu)
+    menu = re.sub(r'B\)', '', menu)
+    menu = re.sub(r'B', '', menu)
+
+    menu = re.sub(r'<.*?>', '', menu) #<~~> 제거
+    menu = re.sub(r'\(신라\)', '', menu)
+
+    menu = re.sub(r'\s+', ' ', menu)  # 공백 제거
+
+    menu = re.sub(r'&', '', menu)
+    menu = re.sub(r'정보', '', menu)
+
+    return menu.strip()
+
+
 
 # 메뉴 항목 추출 함수
 def extract_menu_items(data):
@@ -233,16 +239,25 @@ def update_menus(data):
     updated_menus = {restaurant: list(existing_menu_sets[restaurant]) for restaurant in restaurant_keys}
     convert_to_json(updated_menus, menu_list_path)
 
+
+
+
 #-------------mySQL연결 (db에서의 f-string은 자제하자)------------------------------------------------------
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def create_connection():
     try:
         connection = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='1234',
-            database='bugik'
-        )
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PW"),
+            database=os.getenv("DB_NAME"),
+            charset='utf8mb4'
+    )
+    
         if connection.is_connected():
             print("MySQL 연결 성공")
         return connection
@@ -312,8 +327,7 @@ def div_mealtype(menu):
     return meal_dict
 
 def insert_data_into_db(menu_list, dorm_meals):
-
-    ######### food_info에서 같은 레스토랑의 중복된 메뉴가 있으면 안돼.
+    
     # db에 데이터 초기화하려면은 npm run seed
     
     connection = create_connection()
@@ -358,86 +372,82 @@ def insert_data_into_db(menu_list, dorm_meals):
         print("menu_list 데이터를 food_info 테이블에 잘 삽입했습니다.")
 
 
-        for meal_data in dorm_meals:
-            restaurant_name = meal_data['res']  # 식당 이름
-            date = meal_data['date']  # 날짜
-            meals = meal_data['meals']  # 조식, 중식, 석식 등 식사 데이터
+        for restaurant_data in dorm_meals:
+            restaurant = restaurant_data['res']  # 식당 이름
+            date = restaurant_data.get('date', '')  # 날짜 (없을 경우 빈 문자열)
+            
+            if restaurant in restaurant_keys:
+                for meal in restaurant_data.get('meals', []):   
+                    when = meal.get('when', '')  # 조식, 중식, 석식 등
+                    menu = meal.get('menu', '').replace('\n', ', ')  # 줄바꿈을 쉼표로 대체
+                    cleaned_menu = clean_menu(menu)
 
-            # restaurants 테이블에서 restaurant_id 찾기
-            cursor.execute("SELECT restaurant_id FROM restaurants WHERE name = %s", (restaurant_name,))
-            restaurant_id = cursor.fetchone()
-            if not restaurant_id:
-                #print(f"식당 '{restaurant_name}'이 존재하지 않습니다.")
-                continue
-            restaurant_id = restaurant_id[0]
+                    split_menus = re.split(r'[\n/,]', cleaned_menu)
+                    menu_items = [item.strip() for item in split_menus if item.strip()]
 
-            # 각 식사 항목에 대해 처리
-            for meal in meals:
-                when = meal['when']  # 조식, 중식, 석식 등
-                menu = meal['menu']  # 해당 식사의 메뉴
+                    # restaurants 테이블에서 restaurant_id 찾기
+                    cursor.execute("SELECT restaurant_id FROM restaurants WHERE name = %s", (restaurant,))
+                    restaurant_id = cursor.fetchone()
+                    if not restaurant_id:
+                        print(f"식당 '{restaurant}'이 존재하지 않습니다.")
+                        continue
+                    restaurant_id = restaurant_id[0]
 
-                # 메뉴 문자열 정리
-                menu = menu.replace('\n', ', ')  # 줄바꿈을 쉼표로 대체
-                menu = clean_menu(menu)  # clean_menu 함수로 정리
-                menu = [item.strip() for item in menu.split("/") if item.strip()]  # '/' 기준으로 나누고 공백 제거
-
-                # 메뉴가 유효한지 체크
-                menu_found = False
-                for res, menus in menu_list.items():
-                    for menu_item in menus:
-                        if menu_item in menu:  # menu 리스트 메뉴가 원본파일에 있는지 확인.
-                            cursor.execute(
-                                "SELECT item_id FROM food_info WHERE name = %s AND restaurant_id = %s",
-                                (menu_item, restaurant_id)
-                            )
-                            result = cursor.fetchone()
-                            if result:
-                                menu_found = True
-                                break
-                    if menu_found:
-                        break
-
-                if not menu_found:
-                    #print(f"식당 '{restaurant_name}' 날짜 '{date}', '{when}'에 해당하는 유효한 메뉴가 없습니다.")
-                    continue
-
-                # restaurants_meal 테이블에 삽입
-                cursor.execute(
-                    "INSERT INTO restaurants_meal (restaurant_id, date, time) VALUES (%s, %s, %s)",
-                    (restaurant_id, date, when)
-                )
-                menu_date_id = cursor.lastrowid  # 삽입된 menu_date_id 가져오기
-
-                # 메뉴 항목 분류
-                meal_types = div_mealtype(menu)
-                #print(f"'{when}'의 식사 메뉴 분류: {meal_types}")
-
-                # restaurants_meal_food에 삽입
-                for meal_type, items in meal_types.items():
-                    for item in items:
+                    # 메뉴가 유효한지 체크
+                    menu_found = False
+                    for menu_item in menu_items:
                         cursor.execute(
                             "SELECT item_id FROM food_info WHERE name = %s AND restaurant_id = %s",
-                            (item, restaurant_id)
-                        )
-                        item_id = cursor.fetchone()
-                        if not item_id:
-                            #print(f"메뉴 '{item}'이 food_info에 존재하지 않습니다. 건너뛰어잇.")
-                            continue
-                        item_id = item_id[0]
-
-                        # restaurants_meal_food 테이블에 삽입
-                        cursor.execute(
-                            "SELECT COUNT(*) FROM restaurants_meal_food WHERE menu_date_id = %s AND item_id = %s",
-                            (menu_date_id, item_id)
+                            (menu_item, restaurant_id)
                         )
                         result = cursor.fetchone()
+                        if result:
+                            menu_found = True
+                            break  # 하나라도 일치하면 menu_found를 True로 설정하고 중단
 
-                        # 결과가 있을 때만 처리
-                        if result and result[0] == 0:
+                    if not menu_found:
+                        print(f"식당 '{restaurant}' 날짜 '{date}', '{when}'에 해당하는 유효한 메뉴가 없습니다.")
+                        continue
+
+                    # restaurants_meal 테이블에 삽입
+                    cursor.execute(
+                        "INSERT INTO restaurants_meal (restaurant_id, date, time) VALUES (%s, %s, %s)",
+                        (restaurant_id, date, when)
+                    )
+                    menu_date_id = cursor.lastrowid  # 삽입된 menu_date_id 가져오기
+                    
+
+
+                    # 메뉴 항목 분류
+                    meal_types = div_mealtype(menu_items)
+                    #print(f"'{when}'의 식사 메뉴 분류: {meal_types}")
+
+                    # restaurants_meal_food에 삽입
+                    for meal_type, items in meal_types.items():
+                        for item in items:
                             cursor.execute(
-                                "INSERT INTO restaurants_meal_food (menu_date_id, mealtype, item_id) VALUES (%s, %s, %s)",
-                                (menu_date_id, meal_type, item_id)
+                                "SELECT item_id FROM food_info WHERE name = %s AND restaurant_id = %s",
+                                (item, restaurant_id)
                             )
+                            item_id = cursor.fetchone()
+                            if not item_id:
+                                #print(f"메뉴 '{item}'이 food_info에 존재하지 않습니다. 건너뛰어잇.")
+                                continue
+                            item_id = item_id[0]
+
+                            # restaurants_meal_food 테이블에 삽입
+                            cursor.execute(
+                                "SELECT COUNT(*) FROM restaurants_meal_food WHERE menu_date_id = %s AND item_id = %s",
+                                (menu_date_id, item_id)
+                            )
+                            result = cursor.fetchone()
+
+                            # 결과가 있을 때만 처리
+                            if result and result[0] == 0:
+                                cursor.execute(
+                                    "INSERT INTO restaurants_meal_food (menu_date_id, mealtype, item_id) VALUES (%s, %s, %s)",
+                                    (menu_date_id, meal_type, item_id)
+                                )
 
 
             connection.commit()  # 모든 작업 후 한 번만 commit
@@ -451,8 +461,6 @@ def insert_data_into_db(menu_list, dorm_meals):
         cursor.close()
         connection.close()
         print("데이터베이스 연결 종료")
-
-
 
 
 
@@ -486,4 +494,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
