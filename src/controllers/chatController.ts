@@ -3,6 +3,7 @@ import * as chatRoomModel from '../models/chatModel';
 import { RowDataPacket } from 'mysql2';
 
 export const createChatRoom = async (req: Request, res: Response): Promise<void> => {
+  
     console.log("시작");
     const { title, restaurant, maxParticipants } = req.body;
   console.log('title:', title);
