@@ -30,7 +30,7 @@ def generate_date_ranges(start_date, months=2):
     date_ranges = []
     current_date = start_date
     while current_date < start_date + timedelta(days=30 * months):
-        start = current_date.strftime("%Y-%m-%d")
+        start = "2025-01-01"
         end = (current_date + timedelta(days=6)).strftime("%Y-%m-%d")  # 일주일 단위
         date_ranges.append((start, end))
         current_date += timedelta(days=7)
