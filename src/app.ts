@@ -9,7 +9,7 @@ import routes from './routes/index';
 import { setupSwagger } from './swagger';
 
 import { Server as SocketIOServer } from 'socket.io';
-import registerChatSocketHandlers from './sockets/chatsocket';
+import registerChatSocketHandlers from './sockets/chatSocket';
 
 dotenv.config();
 const app: Application = express();
