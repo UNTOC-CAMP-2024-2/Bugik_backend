@@ -11,13 +11,13 @@ CORS(app)  # CORS 설정: 다른 도메인에서의 요청을 허용
 # MySQL 데이터베이스 연결 함수
 def get_db_connection():
     connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PW"),
-            database=os.getenv("DB_NAME"),
+            host=os.getenv("DATABASE_HOST"),
+            user=os.getenv("DATABASE_USER"),
+            password=os.getenv("DATEBASE_PASSWORD"),
+            database=os.getenv("DATABASE_NAME"),
             charset='utf8mb4'
     )
-
+    
     return connection
 
 # 특정 날짜에 대한 메뉴 조회 API
