@@ -6,6 +6,8 @@ import authRouter from './auth';
 import reviewRouter from './review';
 import contentRouter from './contents';
 import chatRouter from './chat';
+import express from 'express';
+import { getInfoFromChatgpt, getInfoFromGemini } from '../controllers/contentsController';
 
 const router = Router();
 
@@ -16,5 +18,9 @@ router.use('/rank',rankRouter);
 router.use('/review',reviewRouter);
 router.use('/contents',contentRouter);
 router.use('/chat',chatRouter)
+
+router.get('/chatgpt', getInfoFromChatgpt);
+router.get('/gemini', getInfoFromGemini);
+
 
 export default router;
