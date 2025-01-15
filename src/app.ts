@@ -10,6 +10,8 @@ import { setupSwagger } from './swagger';
 
 import { Server as SocketIOServer } from 'socket.io';
 import registerChatSocketHandlers from './sockets/chatSocket';
+import contentsRoutes from './routes/index';
+
 
 dotenv.config();
 const app: Application = express();
