@@ -10,11 +10,11 @@ import { setupSwagger } from './swagger';
 
 import { Server as SocketIOServer } from 'socket.io';
 import registerChatSocketHandlers from './sockets/chatSocket';
-import contentsRoutes from './routes/index';
 
 
 dotenv.config();
 const app: Application = express();
+const PORT = process.env.PORT || 4000;
 
 // CORS 설정
 app.use(cors({
@@ -32,10 +32,11 @@ app.use('/api/v1', routes);
 
 // 서버 설정
 setupSwagger(app);
+
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: '*',
+    origin: '*',  
     methods: ['GET', 'POST'],
   },
 });

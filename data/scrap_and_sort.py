@@ -167,6 +167,11 @@ def clean_menu(menu):
     menu = re.sub(r'B\)', '', menu)
     menu = re.sub(r'B', '', menu)
 
+    menu = re.sub(r'\(S\)', '', menu)
+    menu = re.sub(r'\(S', '', menu)
+    menu = re.sub(r'S\)', '', menu)
+    menu = re.sub(r'S', '', menu)
+
     menu = re.sub(r'<.*?>', '', menu) #<~~> 제거
     menu = re.sub(r'\(신라\)', '', menu)
 
